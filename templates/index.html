@@ -1,6 +1,368 @@
-<h1>Django Templates</h1>
-<p>
-    This is just a dummy file served from the "templates" directory.
-</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Terra &amp; Salt — Welcome</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
 
-{% include "includes/footer.html" %}
+  :root{
+    --ink: #1F2E27;
+    --paper: #E7EEE8;
+    --card: #FBFBF8;
+    --amber: #D98E3F;
+    --coral: #C77B63;
+    --line: rgba(31,46,39,0.14);
+    --ink-soft: rgba(31,46,39,0.62);
+  }
+
+  *{ box-sizing: border-box; margin:0; padding:0; }
+
+  html,body{
+    height:100%;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    overflow: hidden;
+  }
+
+  body{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+
+  /* subtle background texture: soft radial bloom */
+  .stage{
+    position:relative;
+    width:100%;
+    height:100%;
+    max-width: 1100px;
+    max-height: 720px;
+    margin: 24px;
+  }
+
+  .stage::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:
+      radial-gradient(circle at 12% 15%, rgba(217,142,63,0.16), transparent 45%),
+      radial-gradient(circle at 88% 85%, rgba(199,123,99,0.16), transparent 45%);
+    pointer-events:none;
+    z-index:0;
+  }
+
+  .card{
+    position:relative;
+    height:100%;
+    background: var(--card);
+    border-radius: 22px;
+    border: 1px solid var(--line);
+    box-shadow: 0 30px 60px -30px rgba(31,46,39,0.35);
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+  }
+
+  .brandbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding: 28px 40px 0;
+    z-index:2;
+  }
+
+  .brand{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  .brand b{ color: var(--ink); font-weight: 600; }
+
+  .counter{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    color: var(--ink-soft);
+  }
+
+  .counter span{ color: var(--amber); }
+
+  /* Slides */
+  .slides{
+    position:relative;
+    flex:1;
+    display:flex;
+  }
+
+  .slide{
+    position:absolute;
+    inset:0;
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+    justify-content:center;
+    padding: 20px 64px;
+    opacity:0;
+    transform: translateX(32px);
+    transition: opacity 0.65s cubic-bezier(.22,.61,.36,1), transform 0.65s cubic-bezier(.22,.61,.36,1);
+    pointer-events:none;
+  }
+
+  .slide.active{
+    opacity:1;
+    transform: translateX(0);
+    pointer-events:auto;
+  }
+
+  .slide.exit-left{
+    transform: translateX(-32px);
+  }
+
+  .eyebrow{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--coral);
+    margin-bottom: 18px;
+  }
+
+  .headline{
+    font-family:'Fraunces', serif;
+    font-weight: 500;
+    font-size: clamp(34px, 5vw, 58px);
+    line-height: 1.06;
+    letter-spacing: -0.01em;
+    max-width: 620px;
+    margin-bottom: 20px;
+  }
+
+  .headline em{
+    font-style: italic;
+    font-weight: 400;
+    color: var(--amber);
+  }
+
+  .sub{
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--ink-soft);
+    max-width: 420px;
+  }
+
+  .cta{
+    margin-top: 34px;
+    display:inline-flex;
+    align-items:center;
+    gap: 10px;
+    background: var(--ink);
+    color: var(--paper);
+    font-family:'Inter', sans-serif;
+    font-weight: 500;
+    font-size: 14px;
+    padding: 14px 24px;
+    border-radius: 999px;
+    text-decoration:none;
+    border: none;
+    cursor:pointer;
+    transition: transform 0.25s ease, background 0.25s ease;
+  }
+
+  .cta:hover{
+    background: var(--amber);
+    transform: translateY(-2px);
+  }
+
+  .cta svg{ width:14px; height:14px; }
+
+  /* Footer / controls */
+  .controls{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding: 0 40px 32px;
+    z-index:2;
+  }
+
+  .dots{
+    display:flex;
+    gap: 10px;
+  }
+
+  .dot{
+    width: 34px;
+    height: 3px;
+    border-radius: 2px;
+    background: var(--line);
+    cursor:pointer;
+    overflow:hidden;
+    position:relative;
+  }
+
+  .dot::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    background: var(--ink);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s ease;
+  }
+
+  .dot.active::after{ transform: scaleX(1); }
+
+  .arrows{
+    display:flex;
+    gap: 10px;
+  }
+
+  .arrow{
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    background: transparent;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+  }
+
+  .arrow:hover{
+    background: var(--ink);
+    border-color: var(--ink);
+    transform: translateY(-1px);
+  }
+
+  .arrow:hover svg{ stroke: var(--paper); }
+
+  .arrow svg{
+    width: 16px;
+    height: 16px;
+    stroke: var(--ink);
+    transition: stroke 0.2s ease;
+  }
+
+  @media (max-width: 640px){
+    .stage{ margin: 0; max-height: 100%; border-radius: 0; }
+    .card{ border-radius: 0; }
+    .brandbar, .controls{ padding-left: 22px; padding-right: 22px; }
+    .slide{ padding: 20px 26px; }
+    .headline{ font-size: clamp(28px, 8vw, 40px); }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .slide{ transition: opacity 0.3s ease; transform:none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <div class="card">
+
+    <div class="brandbar">
+      <div class="brand"><b>Terra &amp; Salt</b> · ceramics studio</div>
+      <div class="counter"><span id="counterNum">01</span> / 03</div>
+    </div>
+
+    <div class="slides">
+
+      <div class="slide active" data-index="0">
+        <div class="eyebrow">Hello, friend</div>
+        <h1 class="headline">Glad you <em>found</em><br>your way here.</h1>
+        <p class="sub">This little corner belongs to Terra &amp; Salt — a studio where clay gets shaped into quiet, useful things.</p>
+      </div>
+
+      <div class="slide" data-index="1">
+        <div class="eyebrow">Since 2019</div>
+        <h1 class="headline">Handbuilt in a<br><em>converted</em> greenhouse.</h1>
+        <p class="sub">Every piece is thrown, trimmed, and glazed by hand, one small batch at a time, following whatever the season brings in.</p>
+      </div>
+
+      <div class="slide" data-index="2">
+        <div class="eyebrow">Ready when you are</div>
+        <h1 class="headline">Come see what's<br>on the <em>wheel</em>.</h1>
+        <p class="sub">The full studio, the current collection, and a few notes from the workbench are just through here.</p>
+        <a href="products-view.html" class="cta">
+          Enter the studio
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
+      </div>
+
+    </div>
+
+    <div class="controls">
+      <div class="dots" id="dots">
+        <div class="dot active" data-index="0"></div>
+        <div class="dot" data-index="1"></div>
+        <div class="dot" data-index="2"></div>
+      </div>
+      <div class="arrows">
+        <button class="arrow" id="prevBtn" aria-label="Previous slide">
+          <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        </button>
+        <button class="arrow" id="nextBtn" aria-label="Next slide">
+          <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const dots = document.querySelectorAll('.dot');
+  const counterNum = document.getElementById('counterNum');
+  const total = slides.length;
+  let current = 0;
+
+  function goTo(index){
+    if(index === current) return;
+    const dir = index > current ? 'left' : 'right';
+
+    slides[current].classList.remove('active');
+    if(dir === 'left') slides[current].classList.add('exit-left');
+
+    slides.forEach((s,i) => { if(i !== current) s.classList.remove('exit-left'); });
+
+    slides[index].classList.add('active');
+    slides[index].classList.remove('exit-left');
+
+    dots[current].classList.remove('active');
+    dots[index].classList.add('active');
+
+    current = index;
+    counterNum.textContent = String(current + 1).padStart(2,'0');
+  }
+
+  document.getElementById('nextBtn').addEventListener('click', () => {
+    goTo((current + 1) % total);
+  });
+
+  document.getElementById('prevBtn').addEventListener('click', () => {
+    goTo((current - 1 + total) % total);
+  });
+
+  dots.forEach(dot => {
+    dot.addEventListener('click', () => goTo(Number(dot.dataset.index)));
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if(e.key === 'ArrowRight') goTo((current + 1) % total);
+    if(e.key === 'ArrowLeft') goTo((current - 1 + total) % total);
+  });
+</script>
+
+</body>
+</html>

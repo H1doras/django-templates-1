@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Terra &amp; Salt — Product Gallery</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f6f0e8;
+    --bg-soft: #efe6d8;
+    --ink: #1d1b18;
+    --muted: #6a625a;
+    --white: #fffdfa;
+    --accent: #d08b4a;
+    --accent-2: #b46143;
+    --line: rgba(29, 27, 24, 0.12);
+    --shadow: 0 25px 65px -30px rgba(29, 27, 24, 0.42);
+    --ink: #1F2E27;
+    --paper: #E7EEE8;
+    --card: #FBFBF8;
+    --amber: #D98E3F;
+    --coral: #C77B63;
+    --line: rgba(31,46,39,0.14);
+    --ink-soft: rgba(31,46,39,0.62);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background:
+      radial-gradient(circle at top left, rgba(208, 139, 74, 0.18), transparent 25%),
+      radial-gradient(circle at bottom right, rgba(180, 97, 67, 0.18), transparent 30%),
+      var(--bg);
+    color: var(--ink);
+  }
+
+  .page {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 40px 22px 0;
+  }
+
+  .hero {
+    display: grid;
+    grid-template-columns: 1.2fr 0.9fr;
+    gap: 28px;
+    align-items: stretch;
+    margin-bottom: 32px;
+  }
+
+  .hero-card,
+  .feature-card,
+  .product-card,
+  .contact-block {
+    background: rgba(255, 253, 250, 0.94);
+    border: 1px solid var(--line);
+    border-radius: 24px;
+    box-shadow: var(--shadow);
+  }
+
+  .hero-card {
+    padding: 38px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    font-size: 11px;
+    color: var(--accent-2);
+    margin-bottom: 18px;
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: clamp(42px, 6vw, 68px);
+    line-height: 0.98;
+    margin-bottom: 18px;
+  }
+
+  h1 em {
+    color: var(--accent);
+    font-style: italic;
+    font-weight: 400;
+  }
+
+  .lead {
+    max-width: 580px;
+    font-size: 16px;
+    line-height: 1.7;
+    color: var(--muted);
+    margin-bottom: 28px;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    padding: 13px 20px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    transition: transform 0.2s ease, background 0.2s ease;
+  }
+
+  .btn:hover { transform: translateY(-2px); }
+
+  .btn-primary {
+    background: var(--ink);
+    color: var(--white);
+  }
+
+  .btn-secondary {
+    border: 1px solid var(--line);
+    color: var(--ink);
+    background: transparent;
+  }
+
+  .feature-card {
+    padding: 20px;
+    display: grid;
+    grid-template-rows: 1fr auto;
+    gap: 18px;
+  }
+
+  .feature-image {
+    min-height: 320px;
+    border-radius: 18px;
+    background:
+      linear-gradient(rgba(15, 11, 7, 0.18), rgba(15, 11, 7, 0.18)),
+      url('https://images.unsplash.com/photo-1517705008128-361805f42e86?auto=format&fit=crop&w=1200&q=80') center/cover;
+  }
+
+  .feature-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .feature-meta strong {
+    display: block;
+    font-size: 18px;
+    margin-bottom: 4px;
+  }
+
+  .feature-meta span {
+    color: var(--muted);
+    font-size: 14px;
+  }
+
+  .tag {
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: rgba(208, 139, 74, 0.12);
+    color: var(--accent-2);
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .gallery-header {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 16px;
+    margin: 16px 0 22px;
+  }
+
+  .gallery-header h2 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(28px, 3vw, 38px);
+    font-weight: 500;
+  }
+
+  .gallery-header p {
+    color: var(--muted);
+    max-width: 520px;
+  }
+
+  .product-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 20px;
+    margin-bottom: 56px;
+  }
+
+  .product-card {
+    overflow: hidden;
+    transition: transform 0.22s ease, box-shadow 0.22s ease;
+  }
+
+  .product-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 28px 70px -36px rgba(29, 27, 24, 0.58);
+  }
+
+  .product-image {
+    aspect-ratio: 4 / 4.6;
+    background-position: center;
+    background-size: cover;
+  }
+
+  .product-info {
+    padding: 18px;
+  }
+
+  .product-info h3 {
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    font-weight: 500;
+    margin-bottom: 6px;
+  }
+
+  .product-info p {
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 14px;
+  }
+
+  .product-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .price {
+    font-family: 'Fraunces', serif;
+    font-size: 18px;
+    color: var(--accent-2);
+  }
+
+  .mini-link {
+    text-decoration: none;
+    color: var(--ink);
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .contact-strip {
+    margin: 24px -22px 0;
+    background: #101010;
+    color: #f7f3ed;
+    padding: 38px 22px;
+  }
+
+  .contact-grid {
+    max-width: 1280px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1.2fr 0.7fr 0.7fr;
+    gap: 24px;
+    align-items: start;
+  }
+
+  .contact-title {
+    font-family: 'Fraunces', serif;
+    font-size: 32px;
+    margin-bottom: 10px;
+  }
+
+  .contact-copy {
+    color: rgba(247, 243, 237, 0.8);
+    line-height: 1.7;
+    max-width: 560px;
+  }
+
+  .contact-block {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.06);
+    padding: 18px;
+  }
+
+  .contact-label {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: rgba(247, 243, 237, 0.6);
+    margin-bottom: 10px;
+  }
+
+  .contact-block a,
+  .contact-block span {
+    color: var(--white);
+    text-decoration: none;
+    line-height: 1.7;
+  }
+  html,body{
+    height:100%;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+  }
+
+  body{
+    display:flex;
+    flex-direction:column;
+  }
+
+  /* Subtle background texture */
+  .page::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    background:
+      radial-gradient(circle at 12% 15%, rgba(217,142,63,0.08), transparent 45%),
+      radial-gradient(circle at 88% 85%, rgba(199,123,99,0.08), transparent 45%);
+    pointer-events:none;
+    z-index:0;
+  }
+
+  .page{
+    position:relative;
+    flex:1;
+    padding: 40px 24px;
+    max-width: 1400px;
+    margin: 0 auto;
+    width:100%;
+    z-index:1;
+  }
+
+  /* Header */
+  .header{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    margin-bottom: 52px;
+    gap:40px;
+  }
+
+  .header-content{
+    flex:1;
+  }
+
+  .breadcrumb{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 20px;
+    display:flex;
+    gap:10px;
+    align-items:center;
+  }
+
+  .breadcrumb a{
+    color: var(--coral);
+    text-decoration:none;
+    cursor:pointer;
+    transition: color 0.2s ease;
+  }
+
+  .breadcrumb a:hover{ color: var(--amber); }
+
+  .breadcrumb span{ color: var(--ink-soft); }
+
+  .page-title{
+    font-family:'Fraunces', serif;
+    font-weight: 500;
+    font-size: clamp(42px, 6vw, 64px);
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+    margin-bottom: 16px;
+  }
+
+  .page-title em{
+    font-style: italic;
+    font-weight: 400;
+    color: var(--amber);
+  }
+
+  .page-subtitle{
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--ink-soft);
+    max-width: 480px;
+  }
+
+  .filters{
+    display:flex;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+
+  .filter-btn{
+    font-family:'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 10px 16px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: transparent;
+    color: var(--ink);
+    cursor:pointer;
+    transition: background 0.2s ease, border-color 0.2s ease;
+  }
+
+  .filter-btn:hover,
+  .filter-btn.active{
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--ink);
+  }
+
+  /* Products Grid */
+  .products{
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 28px;
+    margin-bottom: 60px;
+  }
+
+  .product{
+    background: var(--card);
+    border-radius: 16px;
+    border: 1px solid var(--line);
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display:flex;
+    flex-direction:column;
+    height:100%;
+  }
+
+  .product:hover{
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px -20px rgba(31,46,39,0.25);
+  }
+
+  .product-image{
+    width:100%;
+    height: 260px;
+    background: linear-gradient(135deg, rgba(217,142,63,0.12) 0%, rgba(199,123,99,0.12) 100%);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--ink-soft);
+    overflow:hidden;
+    position:relative;
+  }
+
+  .product-image svg{
+    width: 80px;
+    height: 80px;
+    opacity: 0.4;
+    stroke: var(--coral);
+  }
+
+  .product-image.has-image{
+    background-size: cover;
+    background-position: center;
+  }
+
+  .product-content{
+    padding: 24px;
+    flex:1;
+    display:flex;
+    flex-direction:column;
+  }
+
+  .product-category{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--coral);
+    margin-bottom: 8px;
+  }
+
+  .product-name{
+    font-family:'Fraunces', serif;
+    font-weight: 500;
+    font-size: 20px;
+    line-height: 1.3;
+    margin-bottom: 8px;
+    color: var(--ink);
+  }
+
+  .product-link{
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  .product-link:hover{
+    color: var(--amber);
+  }
+
+  .product-image-link{
+    display:block;
+    text-decoration:none;
+  }
+
+  .product-description{
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--ink-soft);
+    margin-bottom: 16px;
+    flex:1;
+  }
+
+  .product-footer{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+  }
+
+  .product-price{
+    font-family:'Fraunces', serif;
+    font-weight: 500;
+    font-size: 18px;
+    color: var(--amber);
+  }
+  .product-title{
+    margin-bottom: 12px;
+
+  }
+  .add-to-cart{
+    display:inline-flex;
+    align-items:center;
+    gap: 8px;
+    background: var(--ink);
+    color: var(--paper);
+    font-family:'Inter', sans-serif;
+    font-weight: 500;
+    font-size: 13px;
+    padding: 10px 16px;
+    border-radius: 999px;
+    text-decoration:none;
+    border: none;
+    cursor:pointer;
+    transition: transform 0.25s ease, background 0.25s ease;
+  }
+
+  .add-to-cart:hover{
+    background: var(--amber);
+    transform: translateY(-2px);
+  }
+
+  .add-to-cart svg{ width:14px; height:14px; }
+
+  /* Footer */
+  .page-footer{
+    border-top: 1px solid var(--line);
+    padding: 40px 0;
+    margin: 0 -24px;
+    text-align: center;
+  }
+
+  .back-link{
+    font-family:'Inter', sans-serif;
+    font-size: 14px;
+    color: var(--coral);
+    text-decoration:none;
+    transition: color 0.2s ease;
+  }
+
+  .back-link:hover{ color: var(--amber); }
+
+  @media (max-width: 768px){
+    .page{ padding: 28px 16px; }
+    .header{ flex-direction:column; margin-bottom: 40px; }
+    .products{ grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap:20px; }
+    .product-image{ height: 200px; }
+    .page-title{ font-size: clamp(32px, 8vw, 48px); }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .product{ transition: none; }
+    .product:hover{ transform: none; }
+  }
+
+
+  @media (max-width: 960px) {
+    .hero,
+    .contact-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .product-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 640px) {
+    .page { padding: 20px 16px 0; }
+    .hero-card { padding: 24px; }
+    .gallery-header { flex-direction: column; align-items: start; }
+    .product-grid { grid-template-columns: 1fr; }
+    .contact-strip { margin: 24px -16px 0; padding: 28px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <section class="hero">
+    <div class="hero-card">
+      <div class="eyebrow">Studio snapshot</div>
+      
+      <h1>Explore the <em>pieces</em> you’ll bring home.</h1>
+      <p class="lead">A quiet collection of hand-finished ceramics, woven with soft color and everyday use. Browse the favorites below and step into the full product story.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="#gallery">Browse collection</a>
+        <a class="btn btn-secondary" href="index.html">Back to studio</a>
+      </div>
+    </div>
+
+    <aside class="feature-card">
+      <div class="feature-image"></div>
+      <div class="feature-meta">
+        <div>
+          <strong class = "product-title">
+          Signature Clay Set
+          </strong>
+          <a class="filter-btn active" data-filter = "all" href="initial_lg.html">Login/Sign in</a>          
+          <span>Limited run · hand glazed</span>
+        </div>
+        <span class="tag">New</span>
+      </div>
+    </aside>
+  </section>
+  <div class="filters">
+    <button class="filter-btn active" data-filter="all">All</button>
+    {% for category in categories %}
+      <button class="filter-btn" data-filter="{{ category.title|slugify }}">{{ category.title }}</button>
+    {% endfor %}
+  </div>
+
+  <div class="products" id="productsGrid">
+    {% for product in products %}
+      <div class="product" data-category="{{ product.category.title|slugify|default:'uncategorized' }}">
+        <a href="footer.html?product={{ product.id }}" class="product-image-link">
+          <div class="product-image{% if product.image %} has-image{% endif %}"{% if product.image %} style="background-image: url('{{ product.image.url }}');"{% endif %}>
+            {% if not product.image %}
+              <svg viewBox="0 0 100 100" fill="none" stroke-width="1.5"><path d="M20 50 Q20 30 50 30 Q80 30 80 50" stroke="currentColor"/><path d="M25 50 L75 50" stroke="currentColor"/><circle cx="50" cy="50" r="25" fill="none" stroke="currentColor" opacity="0.3"/></svg>
+            {% endif %}
+          </div>
+        </a>
+        <div class="product-content">
+          <div class="product-category">{{ product.category.title|default:"General" }}</div>
+          <h3 class="product-name"><a href="footer.html?product={{ product.id }}" class="product-link">{{ product.title }}</a></h3>
+          <p class="product-description">{{ product.content }}</p>
+          <div class="product-footer">
+            <span class="product-price">${{ product.price }}</span>
+            <button class="add-to-cart">
+              Add
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <p>No products are available yet. Add one from the admin panel.</p>
+    {% endfor %}
+  </div>
+
+  <section id="gallery">
+    <div class="gallery-header">
+      <div>
+        <div class="eyebrow">Featured products</div>
+        <h2>Four pieces, one shelf at a time.</h2>
+      </div>
+      <p>Each card opens into the collection story so shoppers can quickly scan the texture, finish, and mood of every piece.</p>
+    </div>
+
+
+
+
+
+<footer class="contact-strip" id="contact">
+  <div class="contact-grid">
+    <div>
+      <div class="eyebrow" style="color: rgba(247,243,237,0.66);">Contact</div>
+      <h2 class="contact-title">Let’s shape something together.</h2>
+      <p class="contact-copy">For production details, wholesale questions, or custom commissions, reach out and we’ll help you choose the right piece for your space.</p>
+    </div>
+
+    <div class="contact-block">
+      <span class="contact-label">Visit</span>
+      <span>Terra &amp; Salt Studio<br>24 Clay Lane<br>Portland, OR 97201</span>
+    </div>
+
+    <div class="contact-block">
+      <span class="contact-label">Reach us</span>
+      <a href="mailto:hello@terraandsalt.example">hello@terraandsalt.example</a><br>
+      <a href="tel:+15550189">+1 (555) 0189</a>
+    </div>
+  </div>
+</footer>
+<script>
+  const filterBtns = document.querySelectorAll('.filter-btn');
+  const products = document.querySelectorAll('.product');
+
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const filterValue = btn.dataset.filter;
+
+      filterBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      products.forEach(product => {
+        const category = product.dataset.category;
+        if(filterValue === 'all' || category === filterValue){
+          product.style.display = '';
+          setTimeout(() => {
+            product.style.opacity = '1';
+            product.style.transform = 'translateY(0)';
+          }, 10);
+        } else {
+          product.style.opacity = '0';
+          product.style.transform = 'translateY(20px)';
+          setTimeout(() => {
+            product.style.display = 'none';
+          }, 300);
+        }
+      });
+    });
+  });
+
+  document.querySelectorAll('.add-to-cart').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const product = e.target.closest('.product');
+      const productName = product.querySelector('.product-name').textContent;
+      alert(`Added "${productName}" to cart!`);
+    });
+  });
+</script>
+
+</body>
+</html>

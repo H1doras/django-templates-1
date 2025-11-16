@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Terra &amp; Salt — Product Detail</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f3efe7;
+    --panel: #fffdf9;
+    --ink: #1e2a22;
+    --muted: #6e706a;
+    --line: rgba(30,42,34,0.12);
+    --amber: #cc8a49;
+    --soft: #efe1c4;
+    --dark: #111111;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background:
+      radial-gradient(circle at top left, rgba(204, 138, 73, 0.16), transparent 24%),
+      radial-gradient(circle at bottom right, rgba(111, 123, 108, 0.16), transparent 30%),
+      var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+  }
+
+  .wrap {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 28px 20px 0;
+  }
+
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 26px;
+  }
+
+  .brand {
+    font-family: 'JetBrains Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .brand strong { color: var(--ink); }
+
+  .back-link {
+    text-decoration: none;
+    color: var(--ink);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 10px 16px;
+    font-weight: 700;
+    background: rgba(255,255,255,0.75);
+  }
+
+  .product-shell {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    align-items: start;
+    margin-bottom: 30px;
+  }
+
+  .gallery-card,
+  .info-card,
+  .review-card {
+    background: var(--panel);
+    border-radius: 24px;
+    border: 1px solid var(--line);
+    box-shadow: 0 24px 60px -36px rgba(18, 20, 18, 0.45);
+  }
+
+  .gallery-card {
+    overflow: hidden;
+  }
+
+  .gallery-main {
+    width: 100%;
+    aspect-ratio: 4 / 4.8;
+    background: linear-gradient(135deg, rgba(204,138,73,0.12), rgba(111,123,108,0.12));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .gallery-main img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .gallery-thumbs {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    padding: 12px;
+    background: rgba(255,255,255,0.62);
+  }
+
+  .gallery-thumbs img {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    border-radius: 12px;
+    display: block;
+  }
+
+  .info-card {
+    padding: 28px;
+  }
+
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    font-size: 11px;
+    color: var(--amber);
+    margin-bottom: 12px;
+  }
+
+  .name {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(34px, 4vw, 54px);
+    line-height: 1.05;
+    margin-bottom: 10px;
+  }
+
+  .price {
+    font-size: 30px;
+    font-weight: 800;
+    margin: 14px 0 18px;
+  }
+
+  .desc {
+    color: var(--muted);
+    line-height: 1.8;
+    margin-bottom: 18px;
+  }
+
+  .meta-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin: 20px 0 26px;
+  }
+
+  .meta-box {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 12px;
+    background: rgba(255,255,255,0.55);
+  }
+
+  .meta-box strong {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+  }
+
+  .actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    padding: 12px 18px;
+    font-weight: 800;
+    text-decoration: none;
+  }
+
+  .btn-primary {
+    background: var(--ink);
+    color: #f5f3eb;
+  }
+
+  .btn-secondary {
+    background: var(--soft);
+    color: var(--ink);
+  }
+
+  .reviews {
+    margin-top: 12px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .review-card {
+    padding: 20px;
+  }
+
+  .review-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 10px;
+  }
+
+  .review-head strong {
+    font-size: 16px;
+  }
+
+  .review-text {
+    color: var(--muted);
+    line-height: 1.8;
+  }
+
+  .comments-title {
+    font-family: 'Fraunces', serif;
+    font-size: 30px;
+    margin: 6px 0 16px;
+  }
+  .comments-undertitle {
+    font-family: 'Fraunces', serif;
+    font-size: 20px;
+    margin: 4px 0 12px;
+  }
+
+  .footer-contact {
+    background: var(--dark);
+    color: #f7f3ed;
+    padding: 36px 20px 42px;
+    margin: 24px -20px 0;
+  }
+
+  .footer-inner {
+    max-width: 1240px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr 0.8fr;
+    gap: 20px;
+  }
+
+  .footer-title {
+    font-family: 'Fraunces', serif;
+    font-size: 32px;
+    margin-bottom: 8px;
+  }
+
+  .footer-copy,
+  .foot-list {
+    color: rgba(247,243,237,0.72);
+    line-height: 1.75;
+  }
+
+  .foot-list {
+    list-style: none;
+  }
+  .third-input {
+  padding: 20px;       
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  border: none;
+  outline: none;
+  background: var(--panel);
+  border-radius: 24px;
+  border: 1px solid var(--line);
+  box-shadow: 0 24px 60px -36px rgba(18, 20, 18, 0.45);
+}
+
+
+  .foot-list li + li { margin-top: 8px; }
+
+  @media (max-width: 900px) {
+    .product-shell,
+    .footer-inner {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .wrap { padding: 18px 14px 0; }
+    .topbar { flex-direction: column; align-items: flex-start; }
+    .info-card { padding: 20px; }
+    .gallery-thumbs { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .footer-contact { margin-left: -14px; margin-right: -14px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="topbar">
+    <div class="brand"><strong>Terra &amp; Salt</strong> · product detail</div>
+    <a class="back-link" href="products-view.html">← Back to gallery</a>
+  </div>
+
+  {% if selected_product %}
+    <section class="product-shell">
+      <div class="gallery-card">
+        <div class="gallery-main">
+          {% if selected_product.image %}
+            <img src="{{ selected_product.image.url }}" alt="{{ selected_product.title }}">
+          {% else %}
+            <img src="https://images.unsplash.com/photo-1517705008128-361805f42e86?auto=format&fit=crop&w=900&q=80" alt="{{ selected_product.title }}">
+          {% endif %}
+        </div>saying
+        <div class="gallery-thumbs">
+          <img src="https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?auto=format&fit=crop&w=400&q=80" alt="Product detail 1">
+          <img src="https://images.unsplash.com/photo-1493106641515-6b5631de4bb9?auto=format&fit=crop&w=400&q=80" alt="Product detail 2">
+          <img src="https://images.unsplash.com/photo-1610701596061-2ecf227e85b3?auto=format&fit=crop&w=400&q=80" alt="Product detail 3">
+        </div>
+      </div>
+
+      <div class="info-card">
+        <div class="eyebrow">{{ selected_product.category.title|default:"Studio product" }}</div>
+        <h1 class="name">{{ selected_product.title }}</h1>
+        <div class="price">${{ selected_product.price }}</div>
+        <p class="desc">{{ selected_product.content }}</p>
+
+        <div class="meta-list">
+          <div class="meta-box">
+            <strong>Finish</strong>
+            Soft matte glaze
+          </div>
+          <div class="meta-box">
+            <strong>Material</strong>
+            Hand-crafted ceramic
+          </div>
+          <div class="meta-box">
+            <strong>Delivery</strong>
+            2–4 business days
+          </div>
+          <div class="meta-box">
+            <strong>Rating</strong>
+            4.8 / 5
+          </div>
+        </div>
+
+        <div class="actions">
+          <a class="btn btn-primary" href="#comments">Buy now</a>
+          <a class="btn btn-secondary" href="products-view.html">View all products</a>
+        </div>
+      </div>
+    </section>
+
+    <section id="comments">
+      <div class="eyebrow">Customer notes</div>
+      <h2 class="comments-title">What people are saying</h2>
+      <h1 class="comments-undertitle">Comment down below, your opinion</h1>
+      <div class="reviews">
+        <div>
+          <input id="third-input" type="text" class="third-input"/>
+        </div> 
+        <h1 class="comments-undertitle">Comments:</h1>
+        {% for item in feedback_items %}
+          <article class="review-card">
+            <div class="review-head">
+              <strong>{{ item.user }}</strong>
+              <span>{{ item.assessment }}</span>
+            </div>
+            <p class="review-text">{{ item.text }}</p>
+          </article>
+        {% empty %}
+          <article class="review-card">
+            <p class="review-text">No comments yet — be the first to leave a review for this product.</p>
+          </article>
+        {% endfor %}
+      </div>
+    </section>
+  {% else %}
+    <p>No product chosen yet.</p>
+  {% endif %}
+</div>
+
+<footer class="footer-contact">
+  <div class="footer-inner">
+    <div>
+      <div class="eyebrow" style="color:#e5c793;">Contact</div>
+      <h2 class="footer-title">Let’s help you find the right piece.</h2>
+      <p class="footer-copy">For custom orders, studio pickups, and bulk questions, our team is ready to guide you through the full product story.</p>
+    </div>
+
+    <div>
+      <div class="eyebrow" style="color:#e5c793;">Reach us</div>
+      <ul class="foot-list">
+        <li>hello@terraandsalt.example</li>
+        <li>+1 (555) 0189</li>
+        <li>24 Clay Lane, Portland, OR</li>
+      </ul>
+    </div>
+
+    <div>
+      <div class="eyebrow" style="color:#e5c793;">Hours</div>
+      <ul class="foot-list">
+        <li>Mon–Fri · 10:00–18:00</li>
+        <li>Sat · 11:00–16:00</li>
+        <li>Sun · Closed</li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
