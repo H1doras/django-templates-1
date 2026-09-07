@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Terra &amp; Salt | Choose something beautiful</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;1,500&display=swap" rel="stylesheet">
+<style>
+  :root { --forest: #203b34; --forest-dark: #142a25; --cream: #f5f1e8; --paper: #fffdf8; --terracotta: #c86f4d; --ochre: #d99b4d; --muted: #6e746b; --line: rgba(32, 59, 52, .15); }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--cream); color: var(--forest); font-family: 'DM Sans', sans-serif; }
+  a { color: inherit; }
+  .page { max-width: 1320px; margin: 0 auto; padding: 24px 32px 0; }
+  .topbar { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding-bottom: 30px; }
+  .brand { font-family: 'Playfair Display', serif; font-size: 24px; text-decoration: none; }
+  .brand span { color: var(--terracotta); }
+  .nav { display: flex; align-items: center; gap: 24px; font-size: 13px; font-weight: 600; }
+  .nav a { text-decoration: none; }
+  .nav a:hover { color: var(--terracotta); }
+    .nav-profile, .nav-cart { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; }
+    .nav-profile { color: var(--forest); font-weight: 700; }
+    .profile-avatar { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--terracotta); color: var(--cream); font-size: 12px; }
+    .nav-cart span { display: grid; place-items: center; min-width: 21px; height: 21px; padding: 0 5px; border-radius: 50%; background: var(--forest); color: var(--cream); font-size: 11px; }
+    .nav-profile:hover, .nav-cart:hover { color: var(--terracotta); }
+              <a class="nav-profile" href="{% url 'account' %}" aria-label="Open {{ user.username }}'s account"><span class="profile-avatar">{{ user.username|first|upper }}</span><span>{{ user.username }}</span></a>
+              <a class="nav-cart" href="{% url 'cart' %}">Cart <span>{{ cart_count }}</span></a>
+  .nav .nav-cta { border: 1px solid var(--forest); border-radius: 999px; padding: 10px 16px; }
+  .hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(320px, .82fr); min-height: 510px; overflow: hidden; background: var(--forest); color: var(--cream); }
+  .hero-copy { display: flex; flex-direction: column; justify-content: center; padding: clamp(42px, 7vw, 92px); }
+  .eyebrow { color: var(--ochre); font-size: 11px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
+  h1 { max-width: 680px; margin: 18px 0 22px; font-family: 'Playfair Display', serif; font-size: clamp(44px, 6vw, 78px); font-weight: 500; line-height: 1.03; }
+  h1 em { color: #e6aa62; font-style: italic; }
+  .hero-copy p { max-width: 510px; color: rgba(245, 241, 232, .76); font-size: 16px; line-height: 1.7; }
+  .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 32px; }
+  .button { display: inline-flex; align-items: center; justify-content: center; gap: 10px; border: 1px solid transparent; border-radius: 999px; padding: 13px 20px; font-size: 13px; font-weight: 700; text-decoration: none; transition: transform .2s ease, background .2s ease; }
+  .button:hover { transform: translateY(-2px); }
+  .button-primary { background: var(--ochre); color: var(--forest-dark); }
+  .button-light { border-color: rgba(245, 241, 232, .35); color: var(--cream); }
+  .hero-image { min-height: 360px; background: linear-gradient(180deg, rgba(20, 42, 37, .08), rgba(20, 42, 37, .35)), url('https://images.unsplash.com/photo-1494438639946-1ebd1d20bf85?auto=format&fit=crop&w=1200&q=85') center/cover; }
+  .chooser { padding: 72px 0 86px; }
+  .section-heading { display: flex; align-items: end; justify-content: space-between; gap: 28px; margin-bottom: 26px; }
+  .section-heading h2 { margin-top: 10px; font-family: 'Playfair Display', serif; font-size: clamp(32px, 4vw, 52px); font-weight: 500; line-height: 1.08; }
+  .section-heading p { max-width: 360px; color: var(--muted); font-size: 14px; line-height: 1.65; }
+  .filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
+  .filter-btn { border: 1px solid var(--line); border-radius: 999px; background: transparent; color: var(--forest); cursor: pointer; font: inherit; font-size: 12px; font-weight: 700; padding: 9px 15px; }
+  .filter-btn:hover, .filter-btn.active { border-color: var(--forest); background: var(--forest); color: var(--cream); }
+  .products { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; }
+  .product { overflow: hidden; border: 1px solid var(--line); background: var(--paper); transition: transform .25s ease, box-shadow .25s ease; }
+  .product:hover { transform: translateY(-5px); box-shadow: 0 18px 34px rgba(32, 59, 52, .12); }
+  .product-image-link { display: block; text-decoration: none; }
+  .product-image { display: flex; align-items: center; justify-content: center; aspect-ratio: 1 / 1.08; background: #eadbc7; background-position: center; background-size: cover; color: var(--terracotta); }
+  .product-image svg { width: 64px; opacity: .5; }
+  .product-content { padding: 17px; }
+  .product-category { color: var(--terracotta); font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+  .product-name { margin: 7px 0 6px; font-family: 'Playfair Display', serif; font-size: 21px; font-weight: 500; }
+  .product-link { text-decoration: none; }
+  .product-link:hover { color: var(--terracotta); }
+  .product-description { display: -webkit-box; overflow: hidden; min-height: 42px; margin-bottom: 15px; color: var(--muted); font-size: 13px; line-height: 1.6; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+  .product-footer { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .product-price { font-family: 'Playfair Display', serif; font-size: 18px; }
+  .add-to-cart { display: inline-flex; align-items: center; gap: 7px; border: 0; border-radius: 999px; background: var(--forest); color: var(--cream); cursor: pointer; font: inherit; font-size: 12px; font-weight: 700; padding: 9px 12px; }
+  .add-to-cart:hover { background: var(--terracotta); }
+  .add-to-cart svg { width: 14px; }
+  .empty-state { grid-column: 1 / -1; padding: 32px; border: 1px dashed var(--line); color: var(--muted); text-align: center; }
+  .footer { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 28px; border-top: 1px solid var(--line); padding: 34px 0 42px; color: var(--muted); font-size: 13px; line-height: 1.7; }
+  .footer strong { display: block; margin-bottom: 8px; color: var(--forest); font-family: 'Playfair Display', serif; font-size: 21px; font-weight: 500; }
+  .footer a { text-decoration: none; }
+  .footer a:hover { color: var(--terracotta); }
+  @media (max-width: 900px) { .hero { grid-template-columns: 1fr; } .hero-image { min-height: 300px; } .products { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 620px) { .page { padding: 18px 16px 0; } .topbar { padding-bottom: 22px; } .nav a:not(.nav-cta) { display: none; } .hero-copy { padding: 42px 26px; } .section-heading, .footer { display: block; } .section-heading p { margin-top: 16px; } .products { grid-template-columns: 1fr; } .footer > div { margin-top: 22px; } .footer > div:first-child { margin-top: 0; } }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .product, .button { transition: none; } }
+</style>
+</head>
+<body>
+  <main class="page">
+    <header class="topbar">
+      <a class="brand" href="{% url 'main-page' %}">Terra <span>&amp;</span> Salt</a>
+      <nav class="nav" aria-label="Main navigation">
+        <a href="#chooser">Shop the edit</a>
+        <a href="#contact">Visit the studio</a>
+          {% if user.is_authenticated %}
+            <a class="nav-profile" href="{% url 'account' %}" aria-label="Open {{ user.username }}'s account"><span class="profile-avatar">{{ user.username|first|upper }}</span><span>{{ user.username }}</span></a>
+            <a class="nav-cart" href="{% url 'cart' %}">Cart <span>{{ cart_count }}</span></a>
+          {% else %}
+            <a class="nav-cta" href="{% url 'login' %}">Sign in</a>
+          {% endif %}
+      </nav>
+    </header>
+    <section class="hero">
+      <div class="hero-copy">
+        <div class="eyebrow">Everyday objects, considered</div>
+        <h1>Find the piece that makes a room feel <em>lived in.</em></h1>
+        <p>Small-batch ceramics and useful objects with warm color, honest materials, and a place in your daily rituals.</p>
+        <div class="hero-actions">
+          <a class="button button-primary" href="#chooser">Choose a piece <span aria-hidden="true">&#8595;</span></a>
+          <a class="button button-light" href="{% url 'shop' %}">View full collection</a>
+        </div>
+      </div>
+      <div class="hero-image" role="img" aria-label="Warmly lit table with handmade home objects"></div>
+    </section>
+    <section class="chooser" id="chooser">
+      <div class="section-heading">
+        <div><div class="eyebrow">The current edit</div><h2>Start with what<br>speaks to you.</h2></div>
+        <p>Browse by mood or material, then open any piece to see its story and details.</p>
+      </div>
+      <div class="filters" aria-label="Filter products">
+        <button class="filter-btn active" data-filter="all">Everything</button>
+        {% for category in categories %}<button class="filter-btn" data-filter="{{ category.title|slugify }}">{{ category.title }}</button>{% endfor %}
+      </div>
+      <div class="products" id="productsGrid">
+        {% for product in products %}
+          <article class="product" data-category="{{ product.category.title|slugify|default:'uncategorized' }}">
+            <a href="products-view.html?product={{ product.id }}" class="product-image-link" aria-label="View {{ product.title }}">
+              <div class="product-image"{% if product.image %} style="background-image: url('{{ product.image.url }}');"{% endif %}>
+                {% if not product.image %}<svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M20 50 Q20 30 50 30 Q80 30 80 50"/><path d="M25 50 L75 50"/><circle cx="50" cy="50" r="25" opacity=".3"/></svg>{% endif %}
+              </div>
+            </a>
+            <div class="product-content">
+              <div class="product-category">{{ product.category.title|default:"General" }}</div>
+              <h3 class="product-name"><a href="products-view.html?product={{ product.id }}" class="product-link">{{ product.title }}</a></h3>
+              <p class="product-description">{{ product.content }}</p>
+              <div class="product-footer"><span class="product-price">${{ product.price }}</span><button class="add-to-cart" type="button">Add <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></button></div>
+            </div>
+          </article>
+        {% empty %}<p class="empty-state">No products are available yet. Add one from the admin panel.</p>{% endfor %}
+      </div>
+    </section>
+    <footer class="footer" id="contact">
+      <div><strong>Make room for good things.</strong><span>Thoughtful objects for slow mornings, shared tables, and the everyday in between.</span></div>
+      <div><strong>Visit</strong><span>Terra &amp; Salt Studio<br>24 Clay Lane<br>Portland, OR 97201</span></div>
+      <div><strong>Reach us</strong><a href="mailto:hello@terraandsalt.example">hello@terraandsalt.example</a><br><a href="tel:+15550189">+1 (555) 0189</a></div>
+    </footer>
+  </main>
+  <script>
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    const products = document.querySelectorAll('.product');
+    filterButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        filterButtons.forEach((item) => item.classList.remove('active'));
+        button.classList.add('active');
+        products.forEach((product) => { product.hidden = button.dataset.filter !== 'all' && product.dataset.category !== button.dataset.filter; });
+      });
+    });
+    document.querySelectorAll('.add-to-cart').forEach((button) => {
+      button.addEventListener('click', (event) => { event.stopPropagation(); const productName = button.closest('.product').querySelector('.product-name').textContent; alert(`Added "${productName}" to cart!`); });
+    });
+  </script>
+</body>
+</html>

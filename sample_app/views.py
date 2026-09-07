@@ -9,14 +9,12 @@ from django import template
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
-from .forms import UserRegisterForm
-from django.core.mail import send_mail
-from django.core.mail import EmailMultiAlternatives
-from django.template.loader import get_template
-from django.template import Context
+from django.contrib.auth.forms import PasswordChangeForm
+from .forms import AccountForm, UserRegisterForm
+from .models import Cart
 
 from .models import Products, Category, Feedback
 
@@ -50,6 +48,8 @@ def _build_context(request=None):
         "categories": Category.objects.all().order_by("title"),
         "selected_product": selected_product,
         "feedback_items": feedback_items,
+        "cart_count": Cart.objects.filter(user=request.user).count() if request and request.user.is_authenticated else 0,
+        "cart_count": Cart.objects.filter(user=request.user).count() if request and request.user.is_authenticated else 0,
     }
 
 
@@ -71,7 +71,11 @@ def pages(request):
 
 
 def shop_page(request):
-    return render(request, "products-view.html", _build_context())
+    return render(request, "products-view.html", _build_context(request))
+
+
+def main_page(request):
+    return render(request, "main_page.html", _build_context(request))
 
 
 def _parse_json_body(request):
@@ -189,41 +193,104 @@ def index(request):
 
 #register forms 
 def register(request):
-    if request.method == 'POST':
-        form = UserRegisterForm(request.POST)
-        if form.is_valid():
-            form.save()
-            username = form.cleaned_data.get('username')
-            email = form.cleaned_data.get('email')
-            # just a mail system
-            htmly = get_template('email.html')
-            d = {'username': username}
-            subject, from_email, to = 'welcome', 'your_email@gmail.com', email
-            html_content = htmly.render(d)
-            msg = EmailMultiAlternatives(subject, html_content, from_email, [to])
-            msg.attach_alternative(html_content, "text/html")
-            msg.send()
-            ################################################################## 
-            messages.success(request, f'Your account has been created ! You are now able to log in')
-            return redirect('login')
-    else:
-        form = UserRegisterForm()
-    return render(request, 'register.html', {'form': form, 'title': 'register here'})
+    form = UserRegisterForm(request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        user = form.save()
+        login(request, user)
+        messages.success(request, 'Your account has been created.')
+        return redirect('account')
+
+    return render(request, 'register.html', {'form': form, 'title': 'Create your account'})
  
 #login forms 
-def Login(request):
+def login_view(request):
+    form = AuthenticationForm(request, data=request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        user = form.get_user()
+        login(request, user)
+        messages.success(request, f'Welcome back, {user.username}.')
+        return redirect('account')
+
+    return render(request, 'login.html', {'form': form, 'title': 'Log in'})
+
+
+def logout_view(request):
+    logout(request)
+    messages.success(request, 'You have been logged out.')
+    return redirect('login')
+
+
+@login_required(login_url='login')
+def account(request):
+    form = AccountForm(request.POST or None, instance=request.user)
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        messages.success(request, 'Your account details have been updated.')
+        return redirect('account')
+
+    return render(request, 'account.html', {
+        'form': form,
+        'cart_count': Cart.objects.filter(user=request.user).count(),
+        'title': 'My account',
+    })
+
+
+@login_required(login_url='login')
+def change_password(request):
+    form = PasswordChangeForm(request.user, request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        user = form.save()
+        login(request, user)
+        messages.success(request, 'Your password has been changed.')
+        return redirect('account')
+
+    return render(request, 'password_change.html', {'form': form, 'title': 'Change password'})
+
+@login_required(login_url='login')
+def cart(request):
+    items = list(Cart.objects.filter(user=request.user).select_related('product')) if request.user.is_authenticated else []
+    subtotal = sum(item.product.price * item.quantity for item in items)
+    delivery = 0 if subtotal >= 500 or not items else 35
+    return render(request, 'cart.html', {'items': items, 'subtotal': subtotal, 'delivery': delivery, 'total': subtotal + delivery, 'title': 'Your cart'})
+
+
+@login_required(login_url='login')
+def add_to_cart(request, product_id):
+    if request.method != 'POST':
+        return redirect('shop')
+
+    product = Products.objects.filter(id=product_id, is_published=True).first()
+    if not product:
+        messages.error(request, 'That product is no longer available.')
+        return redirect('shop')
+
+    item, created = Cart.objects.get_or_create(user=request.user, product=product)
+    if not created:
+        item.quantity += 1
+        item.save(update_fields=['quantity'])
+    messages.success(request, f'{product.title} was added to your cart.')
+    return redirect(request.POST.get('next') or 'cart')
+
+
+@login_required(login_url='login')
+def update_cart(request, item_id):
     if request.method == 'POST':
- 
-        # AuthenticationForm_can_also_be_used__
- 
-        username = request.POST['username']
-        password = request.POST['password']
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
-            login(request, user)
-            messages.success(request, f' welcome {username} !!')
-            return redirect('initial_lg')
-        else:
-            messages.info(request, f'account done not exit please sign in')
-    form = AuthenticationForm()
-    return render(request, 'login.html', {'form': form, 'title': 'log in'})
+        item = Cart.objects.filter(id=item_id, user=request.user).first()
+        if item:
+            try:
+                quantity = max(0, min(int(request.POST.get('quantity', 1)), 99))
+            except (TypeError, ValueError):
+                quantity = item.quantity
+            if quantity:
+                item.quantity = quantity
+                item.save(update_fields=['quantity'])
+            else:
+                item.delete()
+    return redirect('cart')
+
+
+@login_required(login_url='login')
+def remove_from_cart(request, item_id):
+    if request.method == 'POST':
+        Cart.objects.filter(id=item_id, user=request.user).delete()
+    return redirect('cart')

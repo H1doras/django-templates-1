@@ -625,7 +625,7 @@
       <h1>Explore the <em>pieces</em> you’ll bring home.</h1>
       <p class="lead">A quiet collection of hand-finished ceramics, woven with soft color and everyday use. Browse the favorites below and step into the full product story.</p>
       <div class="hero-actions">
-        <a class="btn btn-primary" href="#gallery">Browse collection</a>
+        <a class="btn btn-primary" href="{% url 'main-page' %}">Browse collection</a>
         <a class="btn btn-secondary" href="index.html">Back to studio</a>
       </div>
     </div>
@@ -637,7 +637,7 @@
           <strong class = "product-title">
           Signature Clay Set
           </strong>
-          <a class="filter-btn active" data-filter = "all" href="initial_lg.html">Login/Sign in</a>          
+          {% if user.is_authenticated %}<a class="filter-btn active" data-filter="all" href="{% url 'account' %}"><span class="profile-avatar">{{ user.username|first|upper }}</span> {{ user.username }}</a><a class="filter-btn" href="{% url 'cart' %}">Cart</a>{% else %}<a class="filter-btn active" data-filter="all" href="{% url 'login' %}">Login/Sign in</a>{% endif %}
           <span>Limited run · hand glazed</span>
         </div>
         <span class="tag">New</span>
@@ -668,9 +668,7 @@
           <div class="product-footer">
             <span class="product-price">${{ product.price }}</span>
             <button class="add-to-cart">
-              Add
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-            </button>
+            {% if user.is_authenticated %}<form method="post" action="{% url 'add-to-cart' product.id %}">{% csrf_token %}<input type="hidden" name="next" value="shop"><button class="add-to-cart" type="submit">Add <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 1 2 1.61h9.72a2 2 0 0 1 2-1.61L23 6H6"/></svg></button></form>{% else %}<a class="add-to-cart" href="{% url 'login' %}?next={% url 'shop' %}">Sign in to add</a>{% endif %}
           </div>
         </div>
       </div>

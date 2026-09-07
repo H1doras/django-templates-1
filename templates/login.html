@@ -1,20 +1,15 @@
-{% extends "initial_lg.html" %}
+{% extends "auth_base.html" %}
 {% load crispy_forms_tags %}
 {% block start %}
-
- <div class="content-section col-md-8 col-md-offset-2">
-  <center>
-  <form method="POST" style="border: 1px solid black; margin: 4%; padding:10%; border-radius:1%;">
+<main class="auth-card">
+  <p class="auth-kicker">Terra &amp; Salt</p>
+  <h1>Welcome back</h1>
+  <p class="auth-copy">Sign in to continue to your account.</p>
+  <form method="post" class="auth-form">
     {% csrf_token %}
-    <fieldset class="form-group">
-      {{ form|crispy}}
-    </fieldset>
-   <center>
-    <button style="background: black; font-size: 2rem; padding:1%;" class="btn btn-outline-info" type="submit"><span class="glyphicon glyphicon-log-in"></span>   login</button>
-  </center>
-  <br/>
-  <sub style="text-align: left;"><a href="{% url 'register' %}" style="text-decoration: none; color: blue; padding:2%; cursor:pointer; margin-right:2%;">don't have account,sign up</a></sub>
+    {{ form|crispy }}
+    <button type="submit" class="auth-button">Log in</button>
   </form>
-</center>
- </div>
+  <p class="auth-link">New here? <a href="{% url 'register' %}">Create an account</a></p>
+</main>
 {% endblock start %}

@@ -1,0 +1,33 @@
+{% extends "auth_base.html" %}
+{% load crispy_forms_tags %}
+{% block start %}
+<main class="account-shell">
+  <header class="account-header">
+    <div>
+      <p class="auth-kicker">Customer account</p>
+      <h1>Hello, {{ user.first_name|default:user.username }}</h1>
+      <p class="auth-copy">Manage your profile and keep your Terra &amp; Salt details up to date.</p>
+    </div>
+    <a class="account-link" href="{% url 'logout' %}">Log out</a>
+  </header>
+  <div class="account-grid">
+    <section class="account-panel">
+      <h2>Profile details</h2>
+      <p class="panel-copy">Your name and email used for this account.</p>
+      <form method="post" class="auth-form">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <button type="submit" class="auth-button">Save changes</button>
+      </form>
+    </section>
+    <aside class="account-panel account-summary">
+      <h2>Your account</h2>
+      <div class="summary-row"><span>Username</span><strong>{{ user.username }}</strong></div>
+      <div class="summary-row"><span>Cart items</span><strong>{{ cart_count }}</strong></div>
+      <a class="secondary-button" href="{% url 'shop' %}">Continue shopping</a>
+      <a class="secondary-button" href="{% url 'cart' %}">Open cart ({{ cart_count }})</a>
+      <a class="account-link" href="{% url 'change-password' %}">Change password</a>
+    </aside>
+  </div>
+</main>
+{% endblock start %}
