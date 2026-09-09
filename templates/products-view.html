@@ -399,6 +399,72 @@
     max-width: 480px;
   }
 
+  .selected-product {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    gap: 28px;
+    align-items: center;
+    background: rgba(255, 253, 250, 0.95);
+    border: 1px solid var(--line);
+    border-radius: 24px;
+    box-shadow: 0 25px 65px -30px rgba(29, 27, 24, 0.42);
+    padding: 24px;
+    margin-bottom: 32px;
+  }
+
+  .selected-product-image {
+    width: 100%;
+    min-height: 360px;
+    border-radius: 18px;
+    background: linear-gradient(135deg, rgba(217,142,63,0.12) 0%, rgba(199,123,99,0.12) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-size: cover;
+    background-position: center;
+    overflow: hidden;
+  }
+
+  .selected-product-image svg {
+    width: 80px;
+    height: 80px;
+    opacity: 0.45;
+    stroke: var(--coral);
+  }
+
+  .selected-product-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .selected-product-name {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: clamp(30px, 4vw, 48px);
+    line-height: 1.08;
+  }
+
+  .selected-product-price {
+    font-family: 'Fraunces', serif;
+    font-size: 24px;
+    color: var(--amber);
+  }
+
+  .selected-product-description {
+    color: var(--ink-soft);
+    line-height: 1.7;
+    font-size: 15px;
+  }
+
+  .selected-product-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+
   .filters{
     display:flex;
     gap:12px;
@@ -626,7 +692,7 @@
       <p class="lead">A quiet collection of hand-finished ceramics, woven with soft color and everyday use. Browse the favorites below and step into the full product story.</p>
       <div class="hero-actions">
         <a class="btn btn-primary" href="{% url 'main-page' %}">Browse collection</a>
-        <a class="btn btn-secondary" href="index.html">Back to studio</a>
+        <a class="btn btn-secondary" href="{% url 'main-page' %}">Back to studio</a>
       </div>
     </div>
 
@@ -651,10 +717,38 @@
     {% endfor %}
   </div>
 
+  {% if selected_product %}
+    <section class="selected-product">
+      <div class="selected-product-image{% if selected_product.image %} has-image{% endif %}"{% if selected_product.image %} style="background-image: url('{{ selected_product.image.url }}');"{% endif %}>
+        {% if not selected_product.image %}
+          <svg viewBox="0 0 100 100" fill="none" stroke-width="1.5"><path d="M20 50 Q20 30 50 30 Q80 30 80 50" stroke="currentColor"/><path d="M25 50 L75 50" stroke="currentColor"/><circle cx="50" cy="50" r="25" fill="none" stroke="currentColor" opacity="0.3"/></svg>
+        {% endif %}
+      </div>
+      <div class="selected-product-copy">
+        <div class="eyebrow">Selected piece</div>
+        <h2 class="selected-product-name">{{ selected_product.title }}</h2>
+        <div class="selected-product-price">${{ selected_product.price }}</div>
+        <p class="selected-product-description">{{ selected_product.content }}</p>
+        <div class="selected-product-actions">
+          {% if user.is_authenticated %}
+            <form method="post" action="{% url 'add-to-cart' selected_product.id %}">
+              {% csrf_token %}
+              <input type="hidden" name="next" value="{{ request.get_full_path }}">
+              <button class="add-to-cart" type="submit">Add to cart</button>
+            </form>
+          {% else %}
+            <a class="add-to-cart" href="{% url 'login' %}?next={{ request.get_full_path }}">Sign in to add</a>
+          {% endif %}
+          <a class="mini-link" href="{% url 'shop' %}">View all products</a>
+        </div>
+      </div>
+    </section>
+  {% endif %}
+
   <div class="products" id="productsGrid">
     {% for product in products %}
       <div class="product" data-category="{{ product.category.title|slugify|default:'uncategorized' }}">
-        <a href="footer.html?product={{ product.id }}" class="product-image-link">
+        <a href="{% url 'shop' %}?product={{ product.id }}" class="product-image-link">
           <div class="product-image{% if product.image %} has-image{% endif %}"{% if product.image %} style="background-image: url('{{ product.image.url }}');"{% endif %}>
             {% if not product.image %}
               <svg viewBox="0 0 100 100" fill="none" stroke-width="1.5"><path d="M20 50 Q20 30 50 30 Q80 30 80 50" stroke="currentColor"/><path d="M25 50 L75 50" stroke="currentColor"/><circle cx="50" cy="50" r="25" fill="none" stroke="currentColor" opacity="0.3"/></svg>
@@ -663,12 +757,19 @@
         </a>
         <div class="product-content">
           <div class="product-category">{{ product.category.title|default:"General" }}</div>
-          <h3 class="product-name"><a href="footer.html?product={{ product.id }}" class="product-link">{{ product.title }}</a></h3>
+          <h3 class="product-name"><a href="{% url 'shop' %}?product={{ product.id }}" class="product-link">{{ product.title }}</a></h3>
           <p class="product-description">{{ product.content }}</p>
           <div class="product-footer">
             <span class="product-price">${{ product.price }}</span>
-            <button class="add-to-cart">
-            {% if user.is_authenticated %}<form method="post" action="{% url 'add-to-cart' product.id %}">{% csrf_token %}<input type="hidden" name="next" value="shop"><button class="add-to-cart" type="submit">Add <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 1 2 1.61h9.72a2 2 0 0 1 2-1.61L23 6H6"/></svg></button></form>{% else %}<a class="add-to-cart" href="{% url 'login' %}?next={% url 'shop' %}">Sign in to add</a>{% endif %}
+            {% if user.is_authenticated %}
+              <form method="post" action="{% url 'add-to-cart' product.id %}">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="shop">
+                <button class="add-to-cart" type="submit">Add <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 1 2 1.61h9.72a2 2 0 0 1 2-1.61L23 6H6"/></svg></button>
+              </form>
+            {% else %}
+              <a class="add-to-cart" href="{% url 'login' %}?next={% url 'shop' %}">Sign in to add</a>
+            {% endif %}
           </div>
         </div>
       </div>
@@ -740,13 +841,6 @@
     });
   });
 
-  document.querySelectorAll('.add-to-cart').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      const product = e.target.closest('.product');
-      const productName = product.querySelector('.product-name').textContent;
-      alert(`Added "${productName}" to cart!`);
-    });
-  });
 </script>
 
 </body>

@@ -6,12 +6,18 @@
     <div>
       <p class="auth-kicker">Customer account</p>
       <h1>Hello, {{ user.first_name|default:user.username }}</h1>
-      <p class="auth-copy">Manage your profile and keep your Terra &amp; Salt details up to date.</p>
+      <p class="auth-copy">Manage your profile, review your recent picks, and keep your Terra &amp; Salt details up to date.</p>
     </div>
-    <a class="account-link" href="{% url 'logout' %}">Log out</a>
+    <div class="account-actions">
+      <a class="account-link" href="{% url 'shop' %}">Continue shopping</a>
+      {% if user.is_staff %}
+        <a class="account-link" href="{% url 'staff-dashboard' %}">Open staff panel</a>
+      {% endif %}
+      <a class="account-link" href="{% url 'logout' %}">Log out</a>
+    </div>
   </header>
   <div class="account-grid">
-    <section class="account-panel">
+    <section class="account-panel profile-panel">
       <h2>Profile details</h2>
       <p class="panel-copy">Your name and email used for this account.</p>
       <form method="post" class="auth-form">
@@ -20,14 +26,52 @@
         <button type="submit" class="auth-button">Save changes</button>
       </form>
     </section>
+
     <aside class="account-panel account-summary">
       <h2>Your account</h2>
       <div class="summary-row"><span>Username</span><strong>{{ user.username }}</strong></div>
+      <div class="summary-row"><span>Email</span><strong>{{ user.email|default:'Not provided yet' }}</strong></div>
       <div class="summary-row"><span>Cart items</span><strong>{{ cart_count }}</strong></div>
-      <a class="secondary-button" href="{% url 'shop' %}">Continue shopping</a>
+      <div class="summary-row"><span>Delivery status</span><strong>{{ delivery_status }}</strong></div>
       <a class="secondary-button" href="{% url 'cart' %}">Open cart ({{ cart_count }})</a>
-      <a class="account-link" href="{% url 'change-password' %}">Change password</a>
+      <a class="secondary-button secondary-button-alt" href="{% url 'change-password' %}">Change password</a>
     </aside>
   </div>
+
+  <section class="account-panel recent-panel">
+    <div class="recent-header">
+      <div>
+        <p class="auth-kicker smaller">Recent order</p>
+        <h2>Latest in your cart</h2>
+      </div>
+      <a class="account-link" href="{% url 'cart' %}">View full cart</a>
+    </div>
+
+    {% if recent_items %}
+      <div class="recent-list">
+        {% for item in recent_items %}
+          <article class="recent-item">
+            <div class="recent-image">
+              {% if item.product.image %}
+                <img src="{{ item.product.image.url }}" alt="{{ item.product.title }}">
+              {% else %}
+                <div class="recent-placeholder">Terra</div>
+              {% endif %}
+            </div>
+            <div class="recent-copy">
+              <h3>{{ item.product.title }}</h3>
+              <p>{{ item.product.category.title|default:'Everyday object' }}</p>
+            </div>
+            <div class="recent-meta">
+              <strong>${{ item.product.price }}</strong>
+              <span>Qty {{ item.quantity }}</span>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="panel-copy empty-state">Your cart is empty right now. Pick a piece from the collection and it will show up here.</p>
+    {% endif %}
+  </section>
 </main>
 {% endblock start %}

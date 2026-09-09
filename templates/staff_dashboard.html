@@ -1,0 +1,136 @@
+{% extends "auth_base.html" %}
+{% block start %}
+<main class="account-shell">
+  <header class="account-header">
+    <div>
+      <p class="auth-kicker">Staff panel</p>
+      <h1>Operations dashboard</h1>
+      <p class="auth-copy">Track customer carts, monitor delivery status, and keep the storefront running smoothly.</p>
+    </div>
+    <div class="account-actions">
+      <a class="account-link" href="{% url 'main-page' %}">Back to storefront</a>
+      <a class="account-link" href="{% url 'admin:index' %}">Open Django admin</a>
+      <a class="account-link" href="{% url 'logout' %}">Log out</a>
+    </div>
+  </header>
+
+  <div class="account-grid">
+    <section class="account-panel">
+      <h2>Overview</h2>
+      <p class="panel-copy">Live totals pulled from the same Django admin data sources.</p>
+      <div class="summary-row"><span>Active customers</span><strong>{{ total_customers }}</strong></div>
+      <div class="summary-row"><span>Items in carts</span><strong>{{ total_items }}</strong></div>
+      <div class="summary-row"><span>Cart value</span><strong>${{ total_value }}</strong></div>
+      <div class="summary-row"><span>Published products</span><strong>{{ published_products }} / {{ total_products }}</strong></div>
+      <div class="summary-row"><span>Feedback entries</span><strong>{{ feedback_count }}</strong></div>
+    </section>
+
+    <aside class="account-panel account-summary">
+      <h2>Quick actions</h2>
+      <a class="secondary-button" href="{% url 'admin:sample_app_cart_changelist' %}">Manage carts</a>
+      <a class="secondary-button secondary-button-alt" href="{% url 'admin:sample_app_products_changelist' %}">Manage products</a>
+      <a class="secondary-button secondary-button-alt" href="{% url 'admin:sample_app_feedback_changelist' %}">Review feedback</a>
+    </aside>
+  </div>
+
+  <section class="account-panel recent-panel">
+    <div class="recent-header">
+      <div>
+        <p class="auth-kicker smaller">Customer carts</p>
+        <h2>Delivery queue</h2>
+      </div>
+    </div>
+
+    {% if user_entries %}
+      <div class="recent-list">
+        {% for entry in user_entries %}
+          <article class="recent-item">
+            <div class="recent-image">
+              <div class="recent-placeholder">{{ entry.user.username|first|upper }}</div>
+            </div>
+            <div class="recent-copy">
+              <h3>{{ entry.user.get_full_name|default:entry.user.username }}</h3>
+              <p>{{ entry.user.email|default:'No email on file' }}</p>
+            </div>
+            <div class="recent-meta">
+              <strong>{{ entry.total_items }} items</strong>
+              <span>{{ entry.delivery_status }}</span>
+            </div>
+          </article>
+
+          {% if entry.items %}
+            <div style="margin: 0 0 16px 96px; padding: 14px 18px; border: 1px solid var(--line); background: rgba(255,255,255,0.7);">
+              {% for item in entry.items %}
+                <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--line);">
+                  <span>{{ item.product.title }}</span>
+                  <span>Qty {{ item.quantity }} · ${{ item.product.price }}</span>
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="panel-copy empty-state">No customer carts are active right now.</p>
+    {% endif %}
+  </section>
+
+  <div class="account-grid" style="margin-top: 24px;">
+    <section class="account-panel">
+      <h2>Latest products</h2>
+      <p class="panel-copy">Products currently managed in Django admin.</p>
+      {% if recent_products %}
+        <div class="recent-list">
+          {% for product in recent_products %}
+            <article class="recent-item">
+              <div class="recent-image">
+                {% if product.image %}
+                  <img src="{{ product.image.url }}" alt="{{ product.title }}">
+                {% else %}
+                  <div class="recent-placeholder">{{ product.title|first|upper }}</div>
+                {% endif %}
+              </div>
+              <div class="recent-copy">
+                <h3>{{ product.title }}</h3>
+                <p>{{ product.category.title|default:'General' }} · {{ product.is_published|yesno:'Published,Hidden' }}</p>
+              </div>
+              <div class="recent-meta">
+                <strong>${{ product.price }}</strong>
+                <span>{{ product.created_at|date:'M d, Y' }}</span>
+              </div>
+            </article>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="panel-copy empty-state">No products exist yet.</p>
+      {% endif %}
+    </section>
+
+    <section class="account-panel">
+      <h2>Recent feedback</h2>
+      <p class="panel-copy">Customer notes and ratings from the product feedback table.</p>
+      {% if recent_feedback %}
+        <div class="recent-list">
+          {% for feedback in recent_feedback %}
+            <article class="recent-item">
+              <div class="recent-image">
+                <div class="recent-placeholder">{{ feedback.user.username|first|upper }}</div>
+              </div>
+              <div class="recent-copy">
+                <h3>{{ feedback.product.title }}</h3>
+                <p>{{ feedback.user.username }} · {{ feedback.assessment }} star{% if feedback.assessment != 1 %}s{% endif %}</p>
+              </div>
+              <div class="recent-meta">
+                <strong>{{ feedback.created_at|date:'M d' }}</strong>
+                <span>{{ feedback.text|truncatechars:30 }}</span>
+              </div>
+            </article>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="panel-copy empty-state">No feedback has been left yet.</p>
+      {% endif %}
+    </section>
+  </div>
+</main>
+{% endblock %}

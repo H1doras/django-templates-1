@@ -305,7 +305,7 @@
 <div class="wrap">
   <div class="topbar">
     <div class="brand"><strong>Terra &amp; Salt</strong> · product detail</div>
-    <a class="back-link" href="products-view.html">← Back to gallery</a>
+    <a class="back-link" href="{% url 'shop' %}">← Back to gallery</a>
   </div>
 
   {% if selected_product %}
@@ -352,7 +352,7 @@
 
         <div class="actions">
           <a class="btn btn-primary" href="#comments">Buy now</a>
-          <a class="btn btn-secondary" href="products-view.html">View all products</a>
+          <a class="btn btn-secondary" href="{% url 'shop' %}">View all products</a>
         </div>
       </div>
     </section>

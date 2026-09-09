@@ -11,6 +11,7 @@ urlpatterns = [
     path("logout/", views.logout_view, name="logout"),
     path("register/", views.register, name="register"),
     path("account/", views.account, name="account"),
+    path("staff/", views.staff_dashboard, name="staff-dashboard"),
     path("account/password/", views.change_password, name="change-password"),
     path("cart/", views.cart, name="cart"),
     path("cart/add/<int:product_id>/", views.add_to_cart, name="add-to-cart"),
@@ -20,7 +21,8 @@ urlpatterns = [
     path("shop/", views.shop_page, name="shop"),
     path("api/products/", views.product_list_create, name="product-list-create"),
     path("api/products/<int:product_id>/", views.product_detail, name="product-detail"),
-    path('', views.index, name ='index'),
+    path('', views.main_page, name='index'),
+    path('index/', views.index, name='legacy-index'),
     # Matches any html file
     re_path(r'^.*\.html', views.pages, name='pages'),
     re_path(r'', views.pages, name='pages'),

@@ -11,6 +11,7 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.forms import PasswordChangeForm
 from .forms import AccountForm, UserRegisterForm
@@ -19,15 +20,17 @@ from .models import Cart
 from .models import Products, Category, Feedback
 
 
-def _build_context(request=None):
+def _build_context(request=None, limit=None):
     selected_product_id = None
     if request is not None:
         selected_product_id = request.GET.get("product") or request.GET.get("product_id")
 
-    products = Products.objects.filter(is_published=True).select_related("category").order_by("-created_at")
+    all_products = Products.objects.filter(is_published=True).select_related("category").order_by("-created_at")
+    products = all_products[:limit] if limit else all_products
+
     selected_product = None
     if selected_product_id:
-        selected_product = products.filter(id=selected_product_id).first()
+        selected_product = all_products.filter(id=selected_product_id).first()
 
     if selected_product is None and products:
         selected_product = products.first()
@@ -48,7 +51,6 @@ def _build_context(request=None):
         "categories": Category.objects.all().order_by("title"),
         "selected_product": selected_product,
         "feedback_items": feedback_items,
-        "cart_count": Cart.objects.filter(user=request.user).count() if request and request.user.is_authenticated else 0,
         "cart_count": Cart.objects.filter(user=request.user).count() if request and request.user.is_authenticated else 0,
     }
 
@@ -75,7 +77,7 @@ def shop_page(request):
 
 
 def main_page(request):
-    return render(request, "main_page.html", _build_context(request))
+    return render(request, "main_page.html", _build_context(request, limit=5))
 
 
 def _parse_json_body(request):
@@ -209,7 +211,8 @@ def login_view(request):
         user = form.get_user()
         login(request, user)
         messages.success(request, f'Welcome back, {user.username}.')
-        return redirect('account')
+        next_url = request.POST.get('next') or request.GET.get('next') or 'account'
+        return redirect(next_url)
 
     return render(request, 'login.html', {'form': form, 'title': 'Log in'})
 
@@ -228,10 +231,67 @@ def account(request):
         messages.success(request, 'Your account details have been updated.')
         return redirect('account')
 
+    cart_items = list(Cart.objects.filter(user=request.user).select_related('product').order_by('-created_at'))
+    recent_items = cart_items[:3]
+
     return render(request, 'account.html', {
         'form': form,
-        'cart_count': Cart.objects.filter(user=request.user).count(),
+        'cart_count': len(cart_items),
+        'recent_items': recent_items,
+        'cart_total': sum(item.product.price * item.quantity for item in cart_items),
+        'delivery_status': 'Ready for dispatch' if cart_items else 'No items yet',
         'title': 'My account',
+    })
+
+
+@staff_member_required(login_url='login')
+def staff_dashboard(request):
+    all_cart_items = list(Cart.objects.select_related('user', 'product').order_by('-created_at'))
+    recent_products = list(Products.objects.select_related('category').order_by('-created_at')[:6])
+    recent_feedback = list(Feedback.objects.select_related('user', 'product').order_by('-created_at')[:6])
+
+    user_entries = []
+    user_lookup = {}
+
+    for item in all_cart_items:
+        existing = user_lookup.get(item.user_id)
+        if existing is None:
+            existing = {
+                'user': item.user,
+                'items': [],
+                'total_items': 0,
+                'subtotal': 0,
+            }
+            user_lookup[item.user_id] = existing
+            user_entries.append(existing)
+
+        existing['items'].append(item)
+        existing['total_items'] += item.quantity
+        existing['subtotal'] += item.product.price * item.quantity
+
+    for entry in user_entries:
+        if entry['subtotal'] >= 500:
+            entry['delivery_status'] = 'Ready for dispatch'
+        elif entry['total_items']:
+            entry['delivery_status'] = 'Queued for delivery'
+        else:
+            entry['delivery_status'] = 'No active cart'
+
+    total_customers = len(user_entries)
+    total_items = sum(entry['total_items'] for entry in user_entries)
+    total_value = sum(entry['subtotal'] for entry in user_entries)
+
+    return render(request, 'staff_dashboard.html', {
+        'user_entries': user_entries,
+        'recent_products': recent_products,
+        'recent_feedback': recent_feedback,
+        'total_customers': total_customers,
+        'total_items': total_items,
+        'total_value': total_value,
+        'total_products': Products.objects.count(),
+        'published_products': Products.objects.filter(is_published=True).count(),
+        'feedback_count': Feedback.objects.count(),
+        'title': 'Staff dashboard',
     })
 
 
@@ -268,8 +328,10 @@ def add_to_cart(request, product_id):
     if not created:
         item.quantity += 1
         item.save(update_fields=['quantity'])
+
     messages.success(request, f'{product.title} was added to your cart.')
-    return redirect(request.POST.get('next') or 'cart')
+    next_url = request.POST.get('next') or request.META.get('HTTP_REFERER') or 'cart'
+    return redirect(next_url)
 
 
 @login_required(login_url='login')

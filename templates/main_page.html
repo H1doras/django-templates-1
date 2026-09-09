@@ -84,6 +84,9 @@
           {% if user.is_authenticated %}
             <a class="nav-profile" href="{% url 'account' %}" aria-label="Open {{ user.username }}'s account"><span class="profile-avatar">{{ user.username|first|upper }}</span><span>{{ user.username }}</span></a>
             <a class="nav-cart" href="{% url 'cart' %}">Cart <span>{{ cart_count }}</span></a>
+            {% if user.is_staff %}
+              <a class="nav-cta" href="{% url 'staff-dashboard' %}">Staff panel</a>
+            {% endif %}
           {% else %}
             <a class="nav-cta" href="{% url 'login' %}">Sign in</a>
           {% endif %}
@@ -113,16 +116,27 @@
       <div class="products" id="productsGrid">
         {% for product in products %}
           <article class="product" data-category="{{ product.category.title|slugify|default:'uncategorized' }}">
-            <a href="products-view.html?product={{ product.id }}" class="product-image-link" aria-label="View {{ product.title }}">
+            <a href="{% url 'shop' %}?product={{ product.id }}" class="product-image-link" aria-label="View {{ product.title }}">
               <div class="product-image"{% if product.image %} style="background-image: url('{{ product.image.url }}');"{% endif %}>
                 {% if not product.image %}<svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M20 50 Q20 30 50 30 Q80 30 80 50"/><path d="M25 50 L75 50"/><circle cx="50" cy="50" r="25" opacity=".3"/></svg>{% endif %}
               </div>
             </a>
             <div class="product-content">
               <div class="product-category">{{ product.category.title|default:"General" }}</div>
-              <h3 class="product-name"><a href="products-view.html?product={{ product.id }}" class="product-link">{{ product.title }}</a></h3>
+              <h3 class="product-name"><a href="{% url 'shop' %}?product={{ product.id }}" class="product-link">{{ product.title }}</a></h3>
               <p class="product-description">{{ product.content }}</p>
-              <div class="product-footer"><span class="product-price">${{ product.price }}</span><button class="add-to-cart" type="button">Add <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></button></div>
+              <div class="product-footer">
+                <span class="product-price">${{ product.price }}</span>
+                {% if user.is_authenticated %}
+                  <form method="post" action="{% url 'add-to-cart' product.id %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="main-page">
+                    <button class="add-to-cart" type="submit">Add <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></button>
+                  </form>
+                {% else %}
+                  <a class="add-to-cart" href="{% url 'login' %}?next={% url 'main-page' %}">Sign in to add</a>
+                {% endif %}
+              </div>
             </div>
           </article>
         {% empty %}<p class="empty-state">No products are available yet. Add one from the admin panel.</p>{% endfor %}
@@ -143,9 +157,6 @@
         button.classList.add('active');
         products.forEach((product) => { product.hidden = button.dataset.filter !== 'all' && product.dataset.category !== button.dataset.filter; });
       });
-    });
-    document.querySelectorAll('.add-to-cart').forEach((button) => {
-      button.addEventListener('click', (event) => { event.stopPropagation(); const productName = button.closest('.product').querySelector('.product-name').textContent; alert(`Added "${productName}" to cart!`); });
     });
   </script>
 </body>

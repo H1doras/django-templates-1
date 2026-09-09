@@ -4,9 +4,10 @@
 <main class="auth-card">
   <p class="auth-kicker">Terra &amp; Salt</p>
   <h1>Welcome back</h1>
-  <p class="auth-copy">Sign in to continue to your account.</p>
+  <p class="auth-copy">Sign in to continue to your account, cart, and delivery updates.</p>
   <form method="post" class="auth-form">
     {% csrf_token %}
+    <input type="hidden" name="next" value="{{ request.GET.next|default:'account' }}">
     {{ form|crispy }}
     <button type="submit" class="auth-button">Log in</button>
   </form>
